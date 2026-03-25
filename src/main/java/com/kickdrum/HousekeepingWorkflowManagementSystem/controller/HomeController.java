@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HomeController {
 
-    @GetMapping("/home")
+    @GetMapping("/api/home")
     public ResponseEntity<String> greet() {
         return ResponseEntity.ok("Hello vanakkam to kickdrum hrm!");
     }
