@@ -20,35 +20,35 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RegisterRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "Name is required")
     @Size(max = 100)
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "Username is required")
     @Size(max = 50)
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "Password is required")
     @Size(max = 255)
     private String password;
 
-    @NotNull
+    @NotNull(message = "Role is required")
     private HkStaffRole role;
 
-    @Size(max = 20)
+    @Size(max = 20, message = "Phone must not exceed 20 characters")
     private String phone;
 
-    @Email
+    @Email(message = "Email must be a valid email address")
     @Size(max = 100)
     private String email;
 
-    @NotNull
+    @NotNull(message = "Shift is required")
     private HkStaffShift shift;
 
-    @NotNull
+    @NotNull(message = "Availability is required")
     private HkStaffAvailability availability;
 
-    @NotNull
+    @NotNull(message = "Employment type is required")
     private HkStaffEmploymentType employmentType;
 
     private UUID propertyId;
