@@ -32,6 +32,38 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(StaffAlreadyClockedInException.class)
+    public ResponseEntity<ErrorResponseDTO> handleClockedIn(
+            StaffAlreadyClockedInException ex,
+            HttpServletRequest req
+    ) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                Instant.now().toString(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(StaffNotClockedInException.class)
+    public ResponseEntity<ErrorResponseDTO> handleNotClockedIn(
+            StaffNotClockedInException ex,
+            HttpServletRequest req
+    ) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                Instant.now().toString(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidation(
             MethodArgumentNotValidException ex,
