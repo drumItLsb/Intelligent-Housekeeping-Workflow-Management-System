@@ -5,6 +5,7 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterResponseDTO
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaff;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.ResourceAlreadyExistsException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkStaffRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +46,10 @@ public class AdminService {
                 saved.getShift(),
                 saved.getRole()
         );
+    }
+
+    public HkStaff getByUserName(String userName) {
+        return hkStaffRepository.findByUsername(userName)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
     }
 }
