@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -51,6 +52,70 @@ public class ApiExceptionHandler {
     @ExceptionHandler(StaffNotClockedInException.class)
     public ResponseEntity<ErrorResponseDTO> handleNotClockedIn(
             StaffNotClockedInException ex,
+            HttpServletRequest req
+    ) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                Instant.now().toString(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ShortLeaveRequestException.class)
+    public ResponseEntity<ErrorResponseDTO> handleShortLeaveRequest(
+            ShortLeaveRequestException ex,
+            HttpServletRequest req
+    ) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                Instant.now().toString(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(LeaveRequestAlreadyExists.class)
+    public ResponseEntity<ErrorResponseDTO> handleLeaveRequestAlreadyExists(
+            LeaveRequestAlreadyExists ex,
+            HttpServletRequest req
+    ) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                Instant.now().toString(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEntityNotFound(
+            EntityNotFoundException ex,
+            HttpServletRequest req
+    ) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                Instant.now().toString(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDTO> handleIllegalArgument(
+            IllegalArgumentException ex,
             HttpServletRequest req
     ) {
         ErrorResponseDTO response = new ErrorResponseDTO(
