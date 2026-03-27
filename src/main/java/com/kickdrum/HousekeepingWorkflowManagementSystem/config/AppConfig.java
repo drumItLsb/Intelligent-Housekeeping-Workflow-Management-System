@@ -46,7 +46,7 @@ public class AppConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/error","/api/home","/api/auth/**","/api/mock/bookings").permitAll()
+                        .requestMatchers("/error","/api/home","/api/auth/**","/api/mock/bookings","/api/hk/scheduler/run").permitAll()
                         .anyRequest().authenticated()
                 ).exceptionHandling(ex -> ex
                         .accessDeniedHandler(accessDeniedHandler)

@@ -7,16 +7,28 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+//@Data
+//@Builder
+//@NoArgsConstructor
+//@AllArgsConstructor
+//public class ShortfallReport {
+//    private LocalDate date;
+//
+//    private boolean deepCleanShortfall;
+//    private Integer extraStaffForDeepClean;
+//
+//    private boolean dailyVacantShortfall;
+//    private Integer extraStaffForDailyVacant;
+//}
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShortfallReport {
     private LocalDate date;
-
-    private boolean deepCleanShortfall;
-    private Integer extraStaffForDeepClean;
-
-    private boolean dailyVacantShortfall;
-    private Integer extraStaffForDailyVacant;
+    private Integer totalRequiredMinutes;
+    private Integer totalAvailableMinutes;
+    private Boolean hasShortfall;
+    private Integer extraStaffNeeded;
 }

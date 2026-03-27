@@ -26,7 +26,7 @@ public class BookingMockService {
                 .roomId(UUID.fromString("22222222-2222-2222-2222-222222222222"))
                 .roomNumber("102")
                 .checkIn(date.minusDays(2))
-                .checkOut(date.plusDays(1))
+                .checkOut(date)
                 .occupancyStatus(HkRoomOccupancyStatus.OCCUPIED)
                 .build());
 
@@ -34,14 +34,14 @@ public class BookingMockService {
                 .roomId(UUID.fromString("33333333-3333-3333-3333-333333333333"))
                 .roomNumber("103")
                 .checkIn(date)
-                .checkOut(date.plusDays(2))
+                .checkOut(date.plusDays(1))
                 .occupancyStatus(HkRoomOccupancyStatus.OCCUPIED)
                 .build());
 
         rooms.add(IbeRoomDTO.builder()
                 .roomId(UUID.fromString("44444444-4444-4444-4444-444444444444"))
                 .roomNumber("104")
-                .checkIn(date.plusDays(2))
+                .checkIn(date)
                 .checkOut(date.plusDays(3))
                 .occupancyStatus(HkRoomOccupancyStatus.VACANT)
                 .build());
