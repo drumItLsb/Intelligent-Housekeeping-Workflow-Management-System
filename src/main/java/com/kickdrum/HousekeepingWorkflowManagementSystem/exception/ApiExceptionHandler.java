@@ -209,6 +209,23 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
+    @ExceptionHandler(ShortfallFetchException.class)
+    public ResponseEntity<ErrorResponseDTO> handleShortfallFetch(
+            ShortfallFetchException ex,
+            HttpServletRequest req
+    ) {
+        HttpStatus status = ex.getCause() == null ? HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                Instant.now().toString(),
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(status).body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidation(
             MethodArgumentNotValidException ex,

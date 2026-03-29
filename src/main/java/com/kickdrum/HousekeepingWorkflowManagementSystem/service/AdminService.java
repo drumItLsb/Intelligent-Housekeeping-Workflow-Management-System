@@ -4,6 +4,7 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.AssignemntMappingRe
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RoomSummaryDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterRequestDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterResponseDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.ShortfallResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.StaffSummaryDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.SummaryResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.TaskSummaryDTO;
@@ -11,6 +12,7 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignment;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignmentStatus;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkRoomCleaningType;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkRoomOccupancyStatus;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkShortfallAlert;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaff;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffAvailability;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
@@ -18,10 +20,12 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveType;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.AssignmentMappingFetchException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.ResourceAlreadyExistsException;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.ShortfallFetchException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.SummaryFetchException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkAssignmentRepository;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkLeaveRequestRepository;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkRoomRepository;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkShortfallAlertRepository;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkStaffRepository;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,6 +41,7 @@ public class AdminService {
     private final HkLeaveRequestRepository hkLeaveRequestRepository;
     private final HkRoomRepository hkRoomRepository;
     private final HkAssignmentRepository hkAssignmentRepository;
+    private final HkShortfallAlertRepository hkShortfallAlertRepository;
     private final PasswordEncoder passwordEncoder;
 
     public AdminService(
@@ -44,12 +49,14 @@ public class AdminService {
             HkLeaveRequestRepository hkLeaveRequestRepository,
             HkRoomRepository hkRoomRepository,
             HkAssignmentRepository hkAssignmentRepository,
+            HkShortfallAlertRepository hkShortfallAlertRepository,
             PasswordEncoder passwordEncoder
     ) {
         this.hkStaffRepository = hkStaffRepository;
         this.hkLeaveRequestRepository = hkLeaveRequestRepository;
         this.hkRoomRepository = hkRoomRepository;
         this.hkAssignmentRepository = hkAssignmentRepository;
+        this.hkShortfallAlertRepository = hkShortfallAlertRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -177,6 +184,24 @@ public class AdminService {
                     .toList();
         } catch (Exception ex) {
             throw new AssignmentMappingFetchException("Failed to fetch assignment mapping", ex);
+        }
+    }
+
+    public ShortfallResponseDTO getShortfall(LocalDate date) {
+        try {
+            HkShortfallAlert shortfallAlert = hkShortfallAlertRepository.findFirstByDateOrderByCreatedAtDesc(date)
+                    .orElseThrow(() -> new ShortfallFetchException("Shortfall not found for date: " + date));
+
+            ShortfallResponseDTO response = new ShortfallResponseDTO();
+            response.setDate(shortfallAlert.getDate());
+            response.setExtraStaffNeeded(shortfallAlert.getExtraStaffNeeded());
+            response.setShift(shortfallAlert.getShift());
+            response.setResolved(shortfallAlert.getResolved());
+            return response;
+        } catch (ShortfallFetchException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new ShortfallFetchException("Failed to fetch shortfall", ex);
         }
     }
 

@@ -3,6 +3,7 @@ package com.kickdrum.HousekeepingWorkflowManagementSystem.controller;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.AssignemntMappingResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterRequestDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterResponseDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.ShortfallResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.SummaryResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.service.AdminService;
@@ -56,6 +57,15 @@ public class AdminController {
             @RequestParam UUID propertyId
     ) {
         List<AssignemntMappingResponseDTO> response = adminService.getAssignmentMapping(date, shift, propertyId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/shortfall")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ShortfallResponseDTO> getShortfall(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        ShortfallResponseDTO response = adminService.getShortfall(date);
         return ResponseEntity.ok(response);
     }
 }
