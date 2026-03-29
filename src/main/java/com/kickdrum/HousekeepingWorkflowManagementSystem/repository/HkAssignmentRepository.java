@@ -22,9 +22,8 @@ public interface HkAssignmentRepository extends JpaRepository<HkAssignment, Long
             UUID propertyId
     );
 
-    long countByDateAndShiftAndStatus(
+    long countByDateAndStatus(
             LocalDate date,
-            HkStaffShift shift,
             HkAssignmentStatus status
     );
 }

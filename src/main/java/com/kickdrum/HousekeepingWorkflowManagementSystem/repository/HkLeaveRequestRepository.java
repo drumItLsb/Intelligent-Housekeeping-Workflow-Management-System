@@ -16,9 +16,8 @@ public interface HkLeaveRequestRepository extends JpaRepository<HkLeaveRequest, 
             LeaveRequestStatus status
     );
 
-    long countByDateAndShiftAndLeaveType(
+    long countByDateAndLeaveType(
             LocalDate date,
-            LeaveShift shift,
             LeaveType leaveType
     );
 }

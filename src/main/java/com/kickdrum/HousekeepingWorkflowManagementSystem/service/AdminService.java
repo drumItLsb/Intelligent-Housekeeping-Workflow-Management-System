@@ -16,7 +16,6 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkShortfallAlert
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaff;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffAvailability;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
-import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveType;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.AssignmentMappingFetchException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.ResourceAlreadyExistsException;
@@ -93,23 +92,16 @@ public class AdminService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
     }
 
-    public SummaryResponseDTO fetchSummary(LocalDate date, HkStaffShift shift) {
+    public SummaryResponseDTO fetchSummary(LocalDate date) {
         try {
-            LeaveShift leaveShift = LeaveShift.valueOf(shift.name());
-
             StaffSummaryDTO staffSummary = new StaffSummaryDTO();
-            staffSummary.setOnDuty(toInt(hkStaffRepository.countByShiftAndAvailability(
-                    shift,
-                    HkStaffAvailability.ON_DUTY
-            )));
-            staffSummary.setOnLeave(toInt(hkLeaveRequestRepository.countByDateAndShiftAndLeaveType(
+            staffSummary.setOnDuty(toInt(hkStaffRepository.countByAvailability(HkStaffAvailability.ON_DUTY)));
+            staffSummary.setOnLeave(toInt(hkLeaveRequestRepository.countByDateAndLeaveType(
                     date,
-                    leaveShift,
                     LeaveType.PLANNED
             )));
-            staffSummary.setSick(toInt(hkLeaveRequestRepository.countByDateAndShiftAndLeaveType(
+            staffSummary.setSick(toInt(hkLeaveRequestRepository.countByDateAndLeaveType(
                     date,
-                    leaveShift,
                     LeaveType.SICK
             )));
 
@@ -139,30 +131,25 @@ public class AdminService {
             )));
 
             TaskSummaryDTO taskSummary = new TaskSummaryDTO();
-            taskSummary.setPending(toInt(hkAssignmentRepository.countByDateAndShiftAndStatus(
+            taskSummary.setPending(toInt(hkAssignmentRepository.countByDateAndStatus(
                     date,
-                    shift,
                     HkAssignmentStatus.PENDING
             )));
-            taskSummary.setInProgress(toInt(hkAssignmentRepository.countByDateAndShiftAndStatus(
+            taskSummary.setInProgress(toInt(hkAssignmentRepository.countByDateAndStatus(
                     date,
-                    shift,
                     HkAssignmentStatus.IN_PROGRESS
             )));
-            taskSummary.setCompleted(toInt(hkAssignmentRepository.countByDateAndShiftAndStatus(
+            taskSummary.setCompleted(toInt(hkAssignmentRepository.countByDateAndStatus(
                     date,
-                    shift,
                     HkAssignmentStatus.COMPLETED
             )));
-            taskSummary.setReassigned(toInt(hkAssignmentRepository.countByDateAndShiftAndStatus(
+            taskSummary.setReassigned(toInt(hkAssignmentRepository.countByDateAndStatus(
                     date,
-                    shift,
                     HkAssignmentStatus.REASSIGNED
             )));
 
             SummaryResponseDTO response = new SummaryResponseDTO();
             response.setDate(date);
-            response.setShift(shift.name());
             response.setStaffSummary(staffSummary);
             response.setRoomSummary(roomSummary);
             response.setTaskSummary(taskSummary);

@@ -11,7 +11,6 @@ import lombok.Setter;
 public class SummaryResponseDTO {
 
     private LocalDate date;
-    private String shift;
     private StaffSummaryDTO staffSummary;
     private RoomSummaryDTO roomSummary;
     private TaskSummaryDTO taskSummary;

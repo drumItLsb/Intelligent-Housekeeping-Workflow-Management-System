@@ -42,10 +42,9 @@ public class AdminController {
     @GetMapping("/summary")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SummaryResponseDTO> fetchSummary(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam HkStaffShift shift
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        SummaryResponseDTO response = adminService.fetchSummary(date, shift);
+        SummaryResponseDTO response = adminService.fetchSummary(date);
         return ResponseEntity.ok(response);
     }
 

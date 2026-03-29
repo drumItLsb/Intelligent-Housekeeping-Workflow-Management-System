@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface HkStaffRepository extends JpaRepository<HkStaff, Long> {
     Optional<HkStaff> findByUsername(String username);
-    long countByShiftAndAvailability(HkStaffShift shift, HkStaffAvailability availability);
+    long countByAvailability(HkStaffAvailability availability);
     List<HkStaff> findByPropertyIdAndShiftAndAvailability(
             UUID propertyId,
             HkStaffShift shift,
