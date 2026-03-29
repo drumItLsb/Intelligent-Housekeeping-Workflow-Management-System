@@ -41,6 +41,7 @@ public class AuthController {
         );
 
         UserDetails principal = (UserDetails) authentication.getPrincipal();
+        assert principal != null;
         String token = jwtService.generateToken(principal.getUsername(), principal.getAuthorities());
 
         HkStaff staff = adminService.getByUserName(principal.getUsername());
@@ -48,7 +49,10 @@ public class AuthController {
         return new AuthResponseDTO(
                 token,
                 staff.getUsername(),
-                staff.getRole().name()
+                staff.getRole().name(),
+                staff.getId(),
+                staff.getPropertyId(),
+                staff.getShift()
         );
     }
 
