@@ -4,6 +4,7 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.AssignmentResponseD
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.BeginTaskRequestDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.BeginTaskResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignment;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignmentStatus;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaff;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.StaffNotFoundException;
@@ -57,9 +58,10 @@ public class StaffService {
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + request.getTaskId()));
 
         assignment.setStartedAt(request.getStartTime());
+        assignment.setStatus(HkAssignmentStatus.IN_PROGRESS);
         hkAssignmentRepository.save(assignment);
 
-        return new BeginTaskResponseDTO(request.getTaskId(), "Task updated");
+        return new BeginTaskResponseDTO(request.getTaskId(), "Task updated", assignment.getStatus().name());
     }
 
     private UUID parsePropertyId(String propertyId) {

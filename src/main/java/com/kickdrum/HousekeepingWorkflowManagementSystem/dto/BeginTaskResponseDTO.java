@@ -12,4 +12,5 @@ import lombok.Setter;
 public class BeginTaskResponseDTO {
     private Long taskId;
     private String message;
+    private String status;
 }
