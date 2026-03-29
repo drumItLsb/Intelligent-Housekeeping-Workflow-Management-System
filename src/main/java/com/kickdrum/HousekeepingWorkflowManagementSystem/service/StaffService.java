@@ -3,12 +3,15 @@ package com.kickdrum.HousekeepingWorkflowManagementSystem.service;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.AssignmentResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.BeginTaskRequestDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.BeginTaskResponseDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.CompleteTaskRequestDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.CompleteTaskResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignment;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignmentStatus;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaff;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.StaffNotFoundException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.TaskNotFoundException;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.TaskLifeCycleException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkAssignmentRepository;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkStaffRepository;
 import java.time.LocalDate;
@@ -62,6 +65,26 @@ public class StaffService {
         hkAssignmentRepository.save(assignment);
 
         return new BeginTaskResponseDTO(request.getTaskId(), "Task updated", assignment.getStatus().name());
+    }
+
+    @Transactional
+    public CompleteTaskResponseDTO completeTask(CompleteTaskRequestDTO request) {
+        HkAssignment assignment = hkAssignmentRepository.findById(request.getTaskId())
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + request.getTaskId()));
+
+        if (assignment.getStatus() != HkAssignmentStatus.IN_PROGRESS) {
+            throw new TaskLifeCycleException("Task must be started before trying to complete it");
+        }
+
+        assignment.setCompletedAt(request.getCompletedTime());
+        assignment.setStatus(HkAssignmentStatus.COMPLETED);
+        hkAssignmentRepository.save(assignment);
+
+        return new CompleteTaskResponseDTO(
+                request.getTaskId(),
+                "task completed",
+                assignment.getStatus().name()
+        );
     }
 
     private UUID parsePropertyId(String propertyId) {

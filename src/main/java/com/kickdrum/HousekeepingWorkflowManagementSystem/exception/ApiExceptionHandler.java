@@ -97,6 +97,22 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(TaskLifeCycleException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTaskLifeCycle(
+            TaskLifeCycleException ex,
+            HttpServletRequest req
+    ) {
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                Instant.now().toString(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                req.getRequestURI(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(ShortLeaveRequestException.class)
     public ResponseEntity<ErrorResponseDTO> handleShortLeaveRequest(
             ShortLeaveRequestException ex,

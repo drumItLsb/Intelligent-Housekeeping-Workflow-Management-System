@@ -3,6 +3,8 @@ package com.kickdrum.HousekeepingWorkflowManagementSystem.controller;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.AssignmentResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.BeginTaskRequestDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.BeginTaskResponseDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.CompleteTaskRequestDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.CompleteTaskResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.service.StaffService;
 import jakarta.validation.Valid;
@@ -41,6 +43,12 @@ public class StaffController {
     @PutMapping("/task/begin")
     public ResponseEntity<BeginTaskResponseDTO> beginTask(@Valid @RequestBody BeginTaskRequestDTO request) {
         BeginTaskResponseDTO response = staffService.beginTask(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/task/complete")
+    public ResponseEntity<CompleteTaskResponseDTO> completeTask(@Valid @RequestBody CompleteTaskRequestDTO request) {
+        CompleteTaskResponseDTO response = staffService.completeTask(request);
         return ResponseEntity.ok(response);
     }
 }
