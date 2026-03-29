@@ -16,6 +16,12 @@ public interface HkAssignmentRepository extends JpaRepository<HkAssignment, Long
             UUID propertyId
     );
 
+    List<HkAssignment> findByDateAndShiftAndPropertyIdOrderByAssignedAtAsc(
+            LocalDate date,
+            HkStaffShift shift,
+            UUID propertyId
+    );
+
     long countByDateAndShiftAndStatus(
             LocalDate date,
             HkStaffShift shift,

@@ -1,11 +1,13 @@
 package com.kickdrum.HousekeepingWorkflowManagementSystem.service;
 
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.AssignemntMappingResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RoomSummaryDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterRequestDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.StaffSummaryDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.SummaryResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.TaskSummaryDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignment;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignmentStatus;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkRoomCleaningType;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkRoomOccupancyStatus;
@@ -14,6 +16,7 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffAvailabil
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveType;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.AssignmentMappingFetchException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.ResourceAlreadyExistsException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.SummaryFetchException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkAssignmentRepository;
@@ -21,6 +24,8 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkLeaveReque
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkRoomRepository;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkStaffRepository;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -160,7 +165,34 @@ public class AdminService {
         }
     }
 
+    public List<AssignemntMappingResponseDTO> getAssignmentMapping(
+            LocalDate date,
+            HkStaffShift shift,
+            UUID propertyId
+    ) {
+        try {
+            return hkAssignmentRepository.findByDateAndShiftAndPropertyIdOrderByAssignedAtAsc(date, shift, propertyId)
+                    .stream()
+                    .map(this::mapToAssignmentMappingResponse)
+                    .toList();
+        } catch (Exception ex) {
+            throw new AssignmentMappingFetchException("Failed to fetch assignment mapping", ex);
+        }
+    }
+
     private int toInt(long value) {
         return Math.toIntExact(value);
+    }
+
+    private AssignemntMappingResponseDTO mapToAssignmentMappingResponse(HkAssignment assignment) {
+        AssignemntMappingResponseDTO response = new AssignemntMappingResponseDTO();
+        response.setStaffId(assignment.getStaff() != null ? assignment.getStaff().getId() : null);
+        response.setRoomId(assignment.getRoom() != null ? assignment.getRoom().getId() : null);
+        response.setTaskType(assignment.getTaskType());
+        response.setStatus(assignment.getStatus());
+        response.setShift(assignment.getShift());
+        response.setDurationMinutes(assignment.getDurationMinutes());
+        response.setDate(assignment.getDate());
+        return response;
     }
 }

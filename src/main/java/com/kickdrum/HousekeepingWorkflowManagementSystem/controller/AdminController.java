@@ -1,5 +1,6 @@
 package com.kickdrum.HousekeepingWorkflowManagementSystem.controller;
 
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.AssignemntMappingResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterRequestDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.SummaryResponseDTO;
@@ -7,6 +8,8 @@ import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.service.AdminService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +45,17 @@ public class AdminController {
             @RequestParam HkStaffShift shift
     ) {
         SummaryResponseDTO response = adminService.fetchSummary(date, shift);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/assignment/mapping")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AssignemntMappingResponseDTO>> getAssignmentMapping(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam HkStaffShift shift,
+            @RequestParam UUID propertyId
+    ) {
+        List<AssignemntMappingResponseDTO> response = adminService.getAssignmentMapping(date, shift, propertyId);
         return ResponseEntity.ok(response);
     }
 }
