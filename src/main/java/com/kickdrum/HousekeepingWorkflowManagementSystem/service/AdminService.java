@@ -1,10 +1,26 @@
 package com.kickdrum.HousekeepingWorkflowManagementSystem.service;
 
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RoomSummaryDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterRequestDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.RegisterResponseDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.StaffSummaryDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.SummaryResponseDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.TaskSummaryDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignmentStatus;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkRoomCleaningType;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkRoomOccupancyStatus;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaff;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffAvailability;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveShift;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveType;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.ResourceAlreadyExistsException;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.SummaryFetchException;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkAssignmentRepository;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkLeaveRequestRepository;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkRoomRepository;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkStaffRepository;
+import java.time.LocalDate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,10 +29,22 @@ import org.springframework.stereotype.Service;
 public class AdminService {
 
     private final HkStaffRepository hkStaffRepository;
+    private final HkLeaveRequestRepository hkLeaveRequestRepository;
+    private final HkRoomRepository hkRoomRepository;
+    private final HkAssignmentRepository hkAssignmentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminService(HkStaffRepository hkStaffRepository, PasswordEncoder passwordEncoder) {
+    public AdminService(
+            HkStaffRepository hkStaffRepository,
+            HkLeaveRequestRepository hkLeaveRequestRepository,
+            HkRoomRepository hkRoomRepository,
+            HkAssignmentRepository hkAssignmentRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.hkStaffRepository = hkStaffRepository;
+        this.hkLeaveRequestRepository = hkLeaveRequestRepository;
+        this.hkRoomRepository = hkRoomRepository;
+        this.hkAssignmentRepository = hkAssignmentRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -51,5 +79,88 @@ public class AdminService {
     public HkStaff getByUserName(String userName) {
         return hkStaffRepository.findByUsername(userName)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
+    }
+
+    public SummaryResponseDTO fetchSummary(LocalDate date, HkStaffShift shift) {
+        try {
+            LeaveShift leaveShift = LeaveShift.valueOf(shift.name());
+
+            StaffSummaryDTO staffSummary = new StaffSummaryDTO();
+            staffSummary.setOnDuty(toInt(hkStaffRepository.countByShiftAndAvailability(
+                    shift,
+                    HkStaffAvailability.ON_DUTY
+            )));
+            staffSummary.setOnLeave(toInt(hkLeaveRequestRepository.countByDateAndShiftAndLeaveType(
+                    date,
+                    leaveShift,
+                    LeaveType.PLANNED
+            )));
+            staffSummary.setSick(toInt(hkLeaveRequestRepository.countByDateAndShiftAndLeaveType(
+                    date,
+                    leaveShift,
+                    LeaveType.SICK
+            )));
+
+            RoomSummaryDTO roomSummary = new RoomSummaryDTO();
+            roomSummary.setOccupied(toInt(hkRoomRepository.countByCheckoutDateAndOccupancyStatus(
+                    date,
+                    HkRoomOccupancyStatus.OCCUPIED
+            )));
+            roomSummary.setVacant(toInt(hkRoomRepository.countByCheckoutDateAndOccupancyStatus(
+                    date,
+                    HkRoomOccupancyStatus.VACANT
+            )));
+            roomSummary.setDeepClean(toInt(hkRoomRepository.countByCheckoutDateAndOccupancyStatusAndCleaningType(
+                    date,
+                    HkRoomOccupancyStatus.OCCUPIED,
+                    HkRoomCleaningType.DEEP
+            )));
+            roomSummary.setDailyClean(toInt(hkRoomRepository.countByCheckoutDateAndOccupancyStatusAndCleaningType(
+                    date,
+                    HkRoomOccupancyStatus.OCCUPIED,
+                    HkRoomCleaningType.DAILY
+            )));
+            roomSummary.setVacantClean(toInt(hkRoomRepository.countByCheckoutDateAndOccupancyStatusAndCleaningType(
+                    date,
+                    HkRoomOccupancyStatus.VACANT,
+                    HkRoomCleaningType.VACANT
+            )));
+
+            TaskSummaryDTO taskSummary = new TaskSummaryDTO();
+            taskSummary.setPending(toInt(hkAssignmentRepository.countByDateAndShiftAndStatus(
+                    date,
+                    shift,
+                    HkAssignmentStatus.PENDING
+            )));
+            taskSummary.setInProgress(toInt(hkAssignmentRepository.countByDateAndShiftAndStatus(
+                    date,
+                    shift,
+                    HkAssignmentStatus.IN_PROGRESS
+            )));
+            taskSummary.setCompleted(toInt(hkAssignmentRepository.countByDateAndShiftAndStatus(
+                    date,
+                    shift,
+                    HkAssignmentStatus.COMPLETED
+            )));
+            taskSummary.setReassigned(toInt(hkAssignmentRepository.countByDateAndShiftAndStatus(
+                    date,
+                    shift,
+                    HkAssignmentStatus.REASSIGNED
+            )));
+
+            SummaryResponseDTO response = new SummaryResponseDTO();
+            response.setDate(date);
+            response.setShift(shift.name());
+            response.setStaffSummary(staffSummary);
+            response.setRoomSummary(roomSummary);
+            response.setTaskSummary(taskSummary);
+            return response;
+        } catch (Exception ex) {
+            throw new SummaryFetchException("Failed to fetch summary", ex);
+        }
+    }
+
+    private int toInt(long value) {
+        return Math.toIntExact(value);
     }
 }

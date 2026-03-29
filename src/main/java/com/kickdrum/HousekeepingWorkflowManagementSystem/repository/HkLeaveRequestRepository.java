@@ -2,6 +2,7 @@ package com.kickdrum.HousekeepingWorkflowManagementSystem.repository;
 
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkLeaveRequest;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaff;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveType;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveRequestStatus;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.LeaveShift;
 import java.time.LocalDate;
@@ -13,5 +14,11 @@ public interface HkLeaveRequestRepository extends JpaRepository<HkLeaveRequest, 
             LocalDate date,
             LeaveShift shift,
             LeaveRequestStatus status
+    );
+
+    long countByDateAndShiftAndLeaveType(
+            LocalDate date,
+            LeaveShift shift,
+            LeaveType leaveType
     );
 }

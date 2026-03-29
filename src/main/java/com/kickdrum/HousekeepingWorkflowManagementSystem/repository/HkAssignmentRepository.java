@@ -1,6 +1,7 @@
 package com.kickdrum.HousekeepingWorkflowManagementSystem.repository;
 
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignment;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignmentStatus;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
 import java.time.LocalDate;
 import java.util.List;
@@ -13,5 +14,11 @@ public interface HkAssignmentRepository extends JpaRepository<HkAssignment, Long
             HkStaffShift shift,
             Long staffId,
             UUID propertyId
+    );
+
+    long countByDateAndShiftAndStatus(
+            LocalDate date,
+            HkStaffShift shift,
+            HkAssignmentStatus status
     );
 }
