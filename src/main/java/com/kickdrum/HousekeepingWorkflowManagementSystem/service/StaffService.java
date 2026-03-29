@@ -1,10 +1,13 @@
 package com.kickdrum.HousekeepingWorkflowManagementSystem.service;
 
 import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.AssignmentResponseDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.BeginTaskRequestDTO;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.dto.BeginTaskResponseDTO;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkAssignment;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaff;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.entity.HkStaffShift;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.StaffNotFoundException;
+import com.kickdrum.HousekeepingWorkflowManagementSystem.exception.TaskNotFoundException;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkAssignmentRepository;
 import com.kickdrum.HousekeepingWorkflowManagementSystem.repository.HkStaffRepository;
 import java.time.LocalDate;
@@ -48,6 +51,17 @@ public class StaffService {
                 .toList();
     }
 
+    @Transactional
+    public BeginTaskResponseDTO beginTask(BeginTaskRequestDTO request) {
+        HkAssignment assignment = hkAssignmentRepository.findById(request.getTaskId())
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + request.getTaskId()));
+
+        assignment.setStartedAt(request.getStartTime());
+        hkAssignmentRepository.save(assignment);
+
+        return new BeginTaskResponseDTO(request.getTaskId(), "Task updated");
+    }
+
     private UUID parsePropertyId(String propertyId) {
         try {
             return UUID.fromString(propertyId);
@@ -64,7 +78,8 @@ public class StaffService {
                 assignment.getDurationMinutes(),
                 assignment.getShift().name(),
                 assignment.getAssignedAt() != null ? assignment.getAssignedAt().toString() : null,
-                assignment.getStatus().name()
+                assignment.getStatus().name(),
+                assignment.getId()
         );
     }
 }
